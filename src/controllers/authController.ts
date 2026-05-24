@@ -19,12 +19,16 @@ export async function signUp(req: Request, res: Response) {
 
     if (error) throw error;
 
-    await supabaseAdmin.from('users').insert({
-      id: data.user.id,
-      full_name: fullName,
-      email,
-      phone,
-    });
+    try {
+      await supabaseAdmin.from('users').insert({
+        id: data.user.id,
+        full_name: fullName,
+        email,
+        phone,
+      });
+    } catch (dbError) {
+      console.log('DB insert error (non-critical):', dbError);
+    }
 
     res.status(201).json({
       message: 'Account created successfully',
@@ -51,11 +55,24 @@ export async function signIn(req: Request, res: Response) {
       user: {
         id: data.user.id,
         email: data.user.email,
-        fullName: data.user.user_metadata.full_name,
+        fullName: data.user.user_metadata?.full_name || '',
       }
     });
   } catch (error: any) {
     res.status(401).json({ error: 'Invalid email or password' });
+  }
+}
+
+export async function sendOTP(req: Request, res: Response) {
+  const { phone } = req.body;
+  if (!phone) return res.status(400).json({ error: 'Phone number is required' });
+
+  try {
+    const { error } = await supabaseAdmin.auth.signInWithOtp({ phone });
+    if (error) throw error;
+    res.json({ message: 'OTP sent successfully' });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
   }
 }
 
