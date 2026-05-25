@@ -7,6 +7,7 @@ import authRoutes from './routes/auth';
 import sosRoutes from './routes/sos';
 import locationRoutes from './routes/location';
 import userRoutes from './routes/user';
+import notifyRoutes from './routes/notify';
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/sos', sosRoutes);
 app.use('/api/location', locationRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/notify', notifyRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ 
